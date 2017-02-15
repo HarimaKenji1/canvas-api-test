@@ -11,8 +11,11 @@ class TestField extends DisplayObjectContainer implements Drawable{
     size = 18;
     typeFace = "Arial";
     textType = "18px Arial";
+    alpha = 1;
+
 
     draw(context2D : CanvasRenderingContext2D){
+        context2D.globalAlpha = this.alpha;
         context2D.fillStyle = this.textColor;
         context2D.font = this.textType;
         context2D.fillText(this.text,this.x,this.y + this.size);
@@ -53,8 +56,10 @@ class Bitmap extends DisplayObjectContainer implements Drawable{
     imageID = "";
     x = 0;
     y = 0;
+    alpha = 1;
 
     draw(context2D : CanvasRenderingContext2D){
+        context2D.globalAlpha = this.alpha;
         var image = new Image();
         image.src = this.imageID;
         image.onload = () =>{
@@ -105,6 +110,7 @@ class Graphics extends DisplayObjectContainer{
 
     
     drawRect(x1,y1,x2,y2,context2D : CanvasRenderingContext2D){
+        context2D.globalAlpha = this.alpha;
         context2D.fillStyle = this.fillColor;
         context2D.fillRect(x1,y1,x2,y2);
         context2D.fill();
@@ -112,6 +118,7 @@ class Graphics extends DisplayObjectContainer{
 
     drawCircle(x,y,rad,context2D : CanvasRenderingContext2D){
         context2D.fillStyle = this.fillColor;
+        context2D.globalAlpha = this.alpha;
         context2D.beginPath();
         context2D.arc(x,y,rad,0,Math.PI*2,true);
         context2D.closePath();
@@ -120,6 +127,7 @@ class Graphics extends DisplayObjectContainer{
 
     drawArc(x,y,rad,beginAngle,endAngle,context2D : CanvasRenderingContext2D){
         context2D.strokeStyle = this.strokeColor;
+        context2D.globalAlpha = this.alpha;
         context2D.beginPath();
         context2D.arc(x,y,rad,beginAngle,endAngle,true);
         context2D.closePath();
