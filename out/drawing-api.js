@@ -10,7 +10,7 @@ var TestField = (function (_super) {
         this.text = "";
         this.textColor = "#000000";
         this.x = 0;
-        this.y = 10;
+        this.y = 8;
         this.size = 18;
         this.typeFace = "Arial";
         this.textType = "18px Arial";
@@ -54,9 +54,12 @@ var Bitmap = (function (_super) {
         this.y = 0;
     }
     Bitmap.prototype.draw = function (context2D) {
+        var _this = this;
         var image = new Image();
         image.src = this.imageID;
-        context2D.drawImage(image, this.x, this.y);
+        image.onload = function () {
+            context2D.drawImage(image, _this.x, _this.y);
+        };
         //console.log("2333");
     };
     Bitmap.prototype.setImage = function (text) {
@@ -69,5 +72,40 @@ var Bitmap = (function (_super) {
         this.y = y;
     };
     return Bitmap;
+}(DisplayObjectContainer));
+var Shape = (function (_super) {
+    __extends(Shape, _super);
+    function Shape() {
+        _super.apply(this, arguments);
+        this.graphics = new Graphics();
+    }
+    return Shape;
+}(DisplayObjectContainer));
+var Graphics = (function (_super) {
+    __extends(Graphics, _super);
+    function Graphics() {
+        _super.apply(this, arguments);
+        this.fillColor = "#000000";
+        this.alpha = 1;
+    }
+    Graphics.prototype.beginFill = function (color, alpha) {
+        this.fillColor = color;
+        this.alpha = alpha;
+    };
+    Graphics.prototype.endFill = function () {
+        this.fillColor = "#000000";
+        this.alpha = 1;
+    };
+    Graphics.prototype.drawRect = function (x1, y1, x2, y2, context2D) {
+        context2D.fillStyle = this.fillColor;
+        context2D.fillRect(x1, y1, x2, y2);
+        context2D.fill();
+    };
+    Graphics.prototype.drawCircle = function (x, y, rad, context2D) {
+        context2D.fillStyle = this.fillColor;
+        context2D.arc(x, y, rad, 0, Math.PI * 2, true);
+        context2D.fill();
+    };
+    return Graphics;
 }(DisplayObjectContainer));
 //# sourceMappingURL=drawing-api.js.map

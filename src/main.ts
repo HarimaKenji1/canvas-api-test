@@ -26,9 +26,18 @@ window.onload = () => {
     var image01 = new Bitmap();
     image01.setImage("src/timg.jpg");
 
+    
 
-    stage.addChild(image01);
-    stage.addChild(textField01);
+
+    //stage.addChild(image01);
+    //stage.addChild(textField01);
+
+    var shape = new Shape();
+    shape.graphics.beginFill("#FF0000",1);
+    shape.graphics.drawRect(0,0,100,100,context2D);
+    shape.graphics.endFill();
+
+    shape.graphics.drawCircle(50,50,20,context2D);
 
     setInterval(() => {
         context2D.clearRect(0,0,canvas.width,canvas.height);

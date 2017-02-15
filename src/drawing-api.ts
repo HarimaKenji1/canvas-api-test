@@ -7,7 +7,7 @@ class TestField extends DisplayObjectContainer implements Drawable{
     text = "";
     textColor = "#000000";
     x = 0;
-    y = 10;
+    y = 8;
     size = 18;
     typeFace = "Arial";
     textType = "18px Arial";
@@ -57,7 +57,9 @@ class Bitmap extends DisplayObjectContainer implements Drawable{
     draw(context2D : CanvasRenderingContext2D){
         var image = new Image();
         image.src = this.imageID;
-        context2D.drawImage(image,this.x,this.y);
+        image.onload = () =>{
+            context2D.drawImage(image,this.x,this.y);
+        }
         //console.log("2333");
     }
 
@@ -75,4 +77,38 @@ class Bitmap extends DisplayObjectContainer implements Drawable{
 
     
 
+}
+
+class Shape extends DisplayObjectContainer{
+
+    graphics : Graphics = new Graphics();
+
+}
+
+class Graphics extends DisplayObjectContainer{
+
+    fillColor = "#000000";
+    alpha = 1;
+
+    beginFill(color,alpha){
+        this.fillColor = color;
+        this.alpha = alpha;
+    }
+
+    endFill(){
+        this.fillColor = "#000000";
+        this.alpha = 1;
+    }
+
+    drawRect(x1,y1,x2,y2,context2D : CanvasRenderingContext2D){
+        context2D.fillStyle = this.fillColor;
+        context2D.fillRect(x1,y1,x2,y2);
+        context2D.fill();
+    }
+
+    drawCircle(x,y,rad,context2D : CanvasRenderingContext2D){
+        context2D.fillStyle = this.fillColor;
+        context2D.arc(x,y,rad,0,Math.PI*2,true);
+        context2D.fill();
+    }
 }
