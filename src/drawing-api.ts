@@ -89,6 +89,9 @@ class Graphics extends DisplayObjectContainer{
 
     fillColor = "#000000";
     alpha = 1;
+    strokeColor = "#000000";
+    lineWidth = 1;
+    lineColor = "#000000";
 
     beginFill(color,alpha){
         this.fillColor = color;
@@ -100,6 +103,7 @@ class Graphics extends DisplayObjectContainer{
         this.alpha = 1;
     }
 
+    
     drawRect(x1,y1,x2,y2,context2D : CanvasRenderingContext2D){
         context2D.fillStyle = this.fillColor;
         context2D.fillRect(x1,y1,x2,y2);
@@ -108,7 +112,18 @@ class Graphics extends DisplayObjectContainer{
 
     drawCircle(x,y,rad,context2D : CanvasRenderingContext2D){
         context2D.fillStyle = this.fillColor;
+        context2D.beginPath();
         context2D.arc(x,y,rad,0,Math.PI*2,true);
+        context2D.closePath();
         context2D.fill();
     }
+
+    drawArc(x,y,rad,beginAngle,endAngle,context2D : CanvasRenderingContext2D){
+        context2D.strokeStyle = this.strokeColor;
+        context2D.beginPath();
+        context2D.arc(x,y,rad,beginAngle,endAngle,true);
+        context2D.closePath();
+        context2D.stroke();
+    }
+    
 }

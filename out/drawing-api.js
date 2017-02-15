@@ -87,6 +87,9 @@ var Graphics = (function (_super) {
         _super.apply(this, arguments);
         this.fillColor = "#000000";
         this.alpha = 1;
+        this.strokeColor = "#000000";
+        this.lineWidth = 1;
+        this.lineColor = "#000000";
     }
     Graphics.prototype.beginFill = function (color, alpha) {
         this.fillColor = color;
@@ -103,8 +106,17 @@ var Graphics = (function (_super) {
     };
     Graphics.prototype.drawCircle = function (x, y, rad, context2D) {
         context2D.fillStyle = this.fillColor;
+        context2D.beginPath();
         context2D.arc(x, y, rad, 0, Math.PI * 2, true);
+        context2D.closePath();
         context2D.fill();
+    };
+    Graphics.prototype.drawArc = function (x, y, rad, beginAngle, endAngle, context2D) {
+        context2D.strokeStyle = this.strokeColor;
+        context2D.beginPath();
+        context2D.arc(x, y, rad, beginAngle, endAngle, true);
+        context2D.closePath();
+        context2D.stroke();
     };
     return Graphics;
 }(DisplayObjectContainer));

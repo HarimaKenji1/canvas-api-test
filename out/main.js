@@ -23,14 +23,21 @@ window.onload = function () {
     image01.setImage("src/timg.jpg");
     //stage.addChild(image01);
     //stage.addChild(textField01);
-    var shape = new Shape();
-    shape.graphics.beginFill("#FF0000", 1);
-    shape.graphics.drawRect(0, 0, 100, 100, context2D);
-    shape.graphics.endFill();
-    shape.graphics.drawCircle(50, 50, 20, context2D);
     setInterval(function () {
         context2D.clearRect(0, 0, canvas.width, canvas.height);
         stage.draw(context2D);
+        var rect = new Shape();
+        rect.graphics.beginFill("#FF0000", 1);
+        rect.graphics.drawRect(0, 300, 100, 100, context2D);
+        rect.graphics.endFill();
+        var circle = new Shape();
+        circle.graphics.beginFill("#00FF00", 1);
+        circle.graphics.drawCircle(100, 100, 30, context2D);
+        circle.graphics.endFill();
+        var arc = new Shape();
+        arc.graphics.beginFill("#0000FF", 1);
+        arc.graphics.drawArc(100, 200, 20, 0, Math.PI, context2D);
+        arc.graphics.endFill();
     }, 100);
 };
 var DisplayObjectContainer = (function () {
