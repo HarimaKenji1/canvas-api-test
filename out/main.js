@@ -1,3 +1,8 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 window.onload = function () {
     var canvas = document.getElementById("test");
     var context2D = canvas.getContext("2d");
@@ -21,38 +26,44 @@ window.onload = function () {
     textField01.setSize(30);
     var image01 = new Bitmap();
     image01.setImage("src/timg.jpg");
-    //stage.addChild(image01);
-    //stage.addChild(textField01);
+    stage.addChild(image01);
+    stage.addChild(textField01);
+    stage.alpha = 0.3;
     setInterval(function () {
         context2D.clearRect(0, 0, canvas.width, canvas.height);
         stage.draw(context2D);
-        var rect = new Shape();
-        rect.graphics.beginFill("#FF0000", 1);
-        rect.graphics.drawRect(0, 300, 100, 100, context2D);
-        rect.graphics.endFill();
-        var circle = new Shape();
-        circle.graphics.beginFill("#00FF00", 1);
-        circle.graphics.drawCircle(100, 100, 30, context2D);
-        circle.graphics.endFill();
-        var arc = new Shape();
-        arc.graphics.beginFill("#0000FF", 1);
-        arc.graphics.drawArc(100, 200, 20, 0, Math.PI, context2D);
-        arc.graphics.endFill();
+        // var rect = new Shape();
+        // rect.graphics.beginFill("#FF0000",1);
+        // rect.graphics.drawRect(0,300,100,100,context2D);
+        // rect.graphics.endFill();
+        // var circle = new Shape();
+        // circle.graphics.beginFill("#00FF00",1);
+        // circle.graphics.drawCircle(100,100,30,context2D);
+        // circle.graphics.endFill();
+        // var arc = new Shape();
+        // arc.graphics.beginFill("#0000FF",1);
+        // arc.graphics.drawArc(100,200,20,0,Math.PI,context2D);
+        // arc.graphics.endFill();
     }, 100);
 };
-var DisplayObjectContainer = (function () {
+var DisplayObjectContainer = (function (_super) {
+    __extends(DisplayObjectContainer, _super);
     function DisplayObjectContainer() {
+        _super.apply(this, arguments);
         this.childArray = [];
+        this.alpha = 1;
+        this.globalAlpha = 1;
     }
     DisplayObjectContainer.prototype.addChild = function (child) {
         this.childArray.push(child);
+        child.parent = this;
     };
-    DisplayObjectContainer.prototype.draw = function (context2D) {
+    DisplayObjectContainer.prototype.render = function (context2D) {
         for (var _i = 0, _a = this.childArray; _i < _a.length; _i++) {
-            var drawble = _a[_i];
-            drawble.draw(context2D);
+            var displayObject = _a[_i];
+            displayObject.draw(context2D);
         }
     };
     return DisplayObjectContainer;
-}());
+}(DisplayObject));
 //# sourceMappingURL=main.js.map

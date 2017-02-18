@@ -3,10 +3,31 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var DisplayObject = (function () {
+    function DisplayObject() {
+        this.alpha = 1;
+        this.globalAlpha = 1;
+        this.scalX = 1;
+        this.scalY = 1;
+    }
+    DisplayObject.prototype.draw = function (context2D) {
+        if (this.parent) {
+            this.globalAlpha = this.parent.globalAlpha * this.alpha;
+        }
+        else {
+            this.globalAlpha = this.alpha;
+        }
+        context2D.globalAlpha = this.globalAlpha;
+        //console.log("Alpha:" + context2D.globalAlpha);
+        this.render(context2D);
+    };
+    DisplayObject.prototype.render = function (context2D) { };
+    return DisplayObject;
+}());
 var TestField = (function (_super) {
     __extends(TestField, _super);
     function TestField() {
-        _super.apply(this, arguments);
+        _super.call(this);
         this.text = "";
         this.textColor = "#000000";
         this.x = 0;
@@ -15,11 +36,11 @@ var TestField = (function (_super) {
         this.typeFace = "Arial";
         this.textType = "18px Arial";
     }
-    TestField.prototype.draw = function (context2D) {
+    TestField.prototype.render = function (context2D) {
         context2D.fillStyle = this.textColor;
         context2D.font = this.textType;
         context2D.fillText(this.text, this.x, this.y + this.size);
-        //console.log("233");
+        console.log("textAlpha:" + context2D.globalAlpha);
     };
     TestField.prototype.setText = function (text) {
         this.text = text;
@@ -44,23 +65,29 @@ var TestField = (function (_super) {
         console.log(this.textType);
     };
     return TestField;
-}(DisplayObjectContainer));
+}(DisplayObject));
 var Bitmap = (function (_super) {
     __extends(Bitmap, _super);
     function Bitmap() {
-        _super.apply(this, arguments);
+        _super.call(this);
         this.imageID = "";
         this.x = 0;
         this.y = 0;
     }
-    Bitmap.prototype.draw = function (context2D) {
+    Bitmap.prototype.render = function (context2D) {
         var _this = this;
         var image = new Image();
         image.src = this.imageID;
-        image.onload = function () {
-            context2D.drawImage(image, _this.x, _this.y);
-        };
-        //console.log("2333");
+        this.imageCache = image;
+        if (this.imageCache) {
+            context2D.drawImage(this.imageCache, this.x, this.y);
+        }
+        else {
+            image.onload = function () {
+                context2D.drawImage(image, _this.x, _this.y);
+            };
+        }
+        console.log("imageAlpha:" + context2D.globalAlpha);
     };
     Bitmap.prototype.setImage = function (text) {
         this.imageID = text;
@@ -72,7 +99,7 @@ var Bitmap = (function (_super) {
         this.y = y;
     };
     return Bitmap;
-}(DisplayObjectContainer));
+}(DisplayObject));
 var Shape = (function (_super) {
     __extends(Shape, _super);
     function Shape() {
@@ -87,6 +114,7 @@ var Graphics = (function (_super) {
         _super.apply(this, arguments);
         this.fillColor = "#000000";
         this.alpha = 1;
+        this.globalAlpha = 1;
         this.strokeColor = "#000000";
         this.lineWidth = 1;
         this.lineColor = "#000000";
@@ -100,12 +128,14 @@ var Graphics = (function (_super) {
         this.alpha = 1;
     };
     Graphics.prototype.drawRect = function (x1, y1, x2, y2, context2D) {
+        context2D.globalAlpha = this.alpha;
         context2D.fillStyle = this.fillColor;
         context2D.fillRect(x1, y1, x2, y2);
         context2D.fill();
     };
     Graphics.prototype.drawCircle = function (x, y, rad, context2D) {
         context2D.fillStyle = this.fillColor;
+        context2D.globalAlpha = this.alpha;
         context2D.beginPath();
         context2D.arc(x, y, rad, 0, Math.PI * 2, true);
         context2D.closePath();
@@ -113,6 +143,7 @@ var Graphics = (function (_super) {
     };
     Graphics.prototype.drawArc = function (x, y, rad, beginAngle, endAngle, context2D) {
         context2D.strokeStyle = this.strokeColor;
+        context2D.globalAlpha = this.alpha;
         context2D.beginPath();
         context2D.arc(x, y, rad, beginAngle, endAngle, true);
         context2D.closePath();

@@ -29,39 +29,43 @@ window.onload = () => {
     
 
 
-    //stage.addChild(image01);
-    //stage.addChild(textField01);
+    stage.addChild(image01);
+    stage.addChild(textField01);
 
-    
+    stage.alpha = 0.3;
+
 
     setInterval(() => {
         context2D.clearRect(0,0,canvas.width,canvas.height);
         stage.draw(context2D);
-        var rect = new Shape();
-        rect.graphics.beginFill("#FF0000",1);
-        rect.graphics.drawRect(0,300,100,100,context2D);
-        rect.graphics.endFill();
-        var circle = new Shape();
-        circle.graphics.beginFill("#00FF00",1);
-        circle.graphics.drawCircle(100,100,30,context2D);
-        circle.graphics.endFill();
-        var arc = new Shape();
-        arc.graphics.beginFill("#0000FF",1);
-        arc.graphics.drawArc(100,200,20,0,Math.PI,context2D);
-        arc.graphics.endFill();
+        // var rect = new Shape();
+        // rect.graphics.beginFill("#FF0000",1);
+        // rect.graphics.drawRect(0,300,100,100,context2D);
+        // rect.graphics.endFill();
+        // var circle = new Shape();
+        // circle.graphics.beginFill("#00FF00",1);
+        // circle.graphics.drawCircle(100,100,30,context2D);
+        // circle.graphics.endFill();
+        // var arc = new Shape();
+        // arc.graphics.beginFill("#0000FF",1);
+        // arc.graphics.drawArc(100,200,20,0,Math.PI,context2D);
+        // arc.graphics.endFill();
     },100)
 };
 
-class DisplayObjectContainer implements Drawable{
-    childArray : Drawable[] = [];
+class DisplayObjectContainer extends DisplayObject{
+    childArray : DisplayObject[] = [];
+    alpha = 1;
+    globalAlpha = 1;
 
-    addChild(child : Drawable){
+    addChild(child : DisplayObject){
         this.childArray.push(child);
+        child.parent = this;
     }
 
-    draw(context2D : CanvasRenderingContext2D){
-        for(let drawble of this.childArray){
-            drawble.draw(context2D);
+    render(context2D : CanvasRenderingContext2D){
+        for(let displayObject of this.childArray){
+            displayObject.draw(context2D);
         }
     }
 }

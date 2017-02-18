@@ -1,8 +1,29 @@
 interface Drawable{
-    draw(context2D : CanvasRenderingContext2D);
+    render(context2D : CanvasRenderingContext2D);
 }
 
-class TestField extends DisplayObjectContainer implements Drawable{
+class DisplayObject implements Drawable{
+    parent : DisplayObjectContainer;
+    alpha = 1;
+    globalAlpha = 1;
+    scalX = 1;
+    scalY = 1;
+
+    draw(context2D : CanvasRenderingContext2D){
+        if(this.parent){
+            this.globalAlpha = this.parent.globalAlpha * this.alpha;
+        }
+        else{
+            this.globalAlpha = this.alpha;
+        }
+        context2D.globalAlpha = this.globalAlpha;
+        //console.log("Alpha:" + context2D.globalAlpha);
+        this.render(context2D);
+    }
+    render(context2D : CanvasRenderingContext2D){}
+}
+
+class TestField extends DisplayObject{
 
     text = "";
     textColor = "#000000";
@@ -11,15 +32,18 @@ class TestField extends DisplayObjectContainer implements Drawable{
     size = 18;
     typeFace = "Arial";
     textType = "18px Arial";
-    alpha = 1;
+
+    constructor(){
+        super();
+    }
+    
 
 
-    draw(context2D : CanvasRenderingContext2D){
-        context2D.globalAlpha = this.alpha;
+    render(context2D : CanvasRenderingContext2D){
         context2D.fillStyle = this.textColor;
         context2D.font = this.textType;
         context2D.fillText(this.text,this.x,this.y + this.size);
-        //console.log("233");
+        console.log("textAlpha:" + context2D.globalAlpha);
     }
 
     setText(text){
@@ -51,21 +75,30 @@ class TestField extends DisplayObjectContainer implements Drawable{
     }
 }
 
-class Bitmap extends DisplayObjectContainer implements Drawable{
+class Bitmap extends DisplayObject{
 
     imageID = "";
     x = 0;
     y = 0;
-    alpha = 1;
+    imageCache;
 
-    draw(context2D : CanvasRenderingContext2D){
-        context2D.globalAlpha = this.alpha;
+    constructor(){
+        super();
+    }
+
+    render(context2D : CanvasRenderingContext2D){
         var image = new Image();
         image.src = this.imageID;
-        image.onload = () =>{
-            context2D.drawImage(image,this.x,this.y);
+        this.imageCache = image;
+        if(this.imageCache){
+            context2D.drawImage(this.imageCache,this.x,this.y);
         }
-        //console.log("2333");
+        else{
+            image.onload = () =>{
+                context2D.drawImage(image,this.x,this.y);
+            }
+        }
+        console.log("imageAlpha:" + context2D.globalAlpha);
     }
 
     setImage(text){
@@ -94,9 +127,11 @@ class Graphics extends DisplayObjectContainer{
 
     fillColor = "#000000";
     alpha = 1;
+    globalAlpha = 1;
     strokeColor = "#000000";
     lineWidth = 1;
     lineColor = "#000000";
+    
 
     beginFill(color,alpha){
         this.fillColor = color;
