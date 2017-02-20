@@ -1,8 +1,3 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 window.onload = function () {
     var canvas = document.getElementById("test");
     var context2D = canvas.getContext("2d");
@@ -22,13 +17,17 @@ window.onload = function () {
     var textField01 = new TestField();
     textField01.setText("Hello world");
     textField01.setTextColor("#00FF00");
-    textField01.setX(0);
     textField01.setSize(30);
     var image01 = new Bitmap();
     image01.setImage("src/timg.jpg");
     stage.addChild(image01);
     stage.addChild(textField01);
-    stage.alpha = 0.3;
+    stage.alpha = 0.8;
+    image01.alpha = 0.4;
+    image01.x = 300;
+    image01.rotation = 30;
+    textField01.alpha = 0.8;
+    textField01.scaleX = 3;
     setInterval(function () {
         context2D.clearRect(0, 0, canvas.width, canvas.height);
         stage.draw(context2D);
@@ -46,24 +45,4 @@ window.onload = function () {
         // arc.graphics.endFill();
     }, 100);
 };
-var DisplayObjectContainer = (function (_super) {
-    __extends(DisplayObjectContainer, _super);
-    function DisplayObjectContainer() {
-        _super.apply(this, arguments);
-        this.childArray = [];
-        this.alpha = 1;
-        this.globalAlpha = 1;
-    }
-    DisplayObjectContainer.prototype.addChild = function (child) {
-        this.childArray.push(child);
-        child.parent = this;
-    };
-    DisplayObjectContainer.prototype.render = function (context2D) {
-        for (var _i = 0, _a = this.childArray; _i < _a.length; _i++) {
-            var displayObject = _a[_i];
-            displayObject.draw(context2D);
-        }
-    };
-    return DisplayObjectContainer;
-}(DisplayObject));
 //# sourceMappingURL=main.js.map

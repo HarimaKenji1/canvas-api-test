@@ -7,31 +7,58 @@ var DisplayObject = (function () {
     function DisplayObject() {
         this.alpha = 1;
         this.globalAlpha = 1;
-        this.scalX = 1;
-        this.scalY = 1;
+        this.scaleX = 1;
+        this.scaleY = 1;
+        this.x = 0;
+        this.y = 0;
+        this.rotation = 0;
+        // hasBeenCalculated = false;
+        this.matrix = new math.Matrix();
+        this.globalMatrix = new math.Matrix();
     }
     DisplayObject.prototype.draw = function (context2D) {
+        this.matrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
         if (this.parent) {
             this.globalAlpha = this.parent.globalAlpha * this.alpha;
+            this.globalMatrix = math.matrixAppendMatrix(this.matrix, this.parent.globalMatrix);
         }
-        else {
+        if (this.parent == null) {
             this.globalAlpha = this.alpha;
+            this.globalMatrix = this.matrix;
         }
         context2D.globalAlpha = this.globalAlpha;
-        //console.log("Alpha:" + context2D.globalAlpha);
+        context2D.setTransform(this.globalMatrix.a, this.globalMatrix.b, this.globalMatrix.c, this.globalMatrix.d, this.globalMatrix.tx, this.globalMatrix.ty);
+        //context2D.transform(this.globalMatrix.a,this.globalMatrix.b,this.globalMatrix.c,this.globalMatrix.d,this.globalMatrix.tx,this.globalMatrix.ty);
+        //console.log(this.globalAlpha);
         this.render(context2D);
     };
     DisplayObject.prototype.render = function (context2D) { };
     return DisplayObject;
 }());
+var DisplayObjectContainer = (function (_super) {
+    __extends(DisplayObjectContainer, _super);
+    function DisplayObjectContainer() {
+        _super.apply(this, arguments);
+        this.childArray = [];
+    }
+    DisplayObjectContainer.prototype.addChild = function (child) {
+        this.childArray.push(child);
+        child.parent = this;
+    };
+    DisplayObjectContainer.prototype.render = function (context2D) {
+        for (var _i = 0, _a = this.childArray; _i < _a.length; _i++) {
+            var displayObject = _a[_i];
+            displayObject.draw(context2D);
+        }
+    };
+    return DisplayObjectContainer;
+}(DisplayObject));
 var TestField = (function (_super) {
     __extends(TestField, _super);
     function TestField() {
         _super.call(this);
         this.text = "";
         this.textColor = "#000000";
-        this.x = 0;
-        this.y = 8;
         this.size = 18;
         this.typeFace = "Arial";
         this.textType = "18px Arial";
@@ -40,7 +67,7 @@ var TestField = (function (_super) {
         context2D.fillStyle = this.textColor;
         context2D.font = this.textType;
         context2D.fillText(this.text, this.x, this.y + this.size);
-        console.log("textAlpha:" + context2D.globalAlpha);
+        //console.log("textAlpha:" + context2D.globalAlpha);
     };
     TestField.prototype.setText = function (text) {
         this.text = text;
@@ -71,8 +98,6 @@ var Bitmap = (function (_super) {
     function Bitmap() {
         _super.call(this);
         this.imageID = "";
-        this.x = 0;
-        this.y = 0;
     }
     Bitmap.prototype.render = function (context2D) {
         var _this = this;
@@ -87,7 +112,7 @@ var Bitmap = (function (_super) {
                 context2D.drawImage(image, _this.x, _this.y);
             };
         }
-        console.log("imageAlpha:" + context2D.globalAlpha);
+        //console.log("imageAlpha:" + context2D.globalAlpha);
     };
     Bitmap.prototype.setImage = function (text) {
         this.imageID = text;

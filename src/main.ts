@@ -20,7 +20,6 @@ window.onload = () => {
     var textField01 = new TestField();
     textField01.setText("Hello world");
     textField01.setTextColor("#00FF00");
-    textField01.setX(0);
     textField01.setSize(30);
 
     var image01 = new Bitmap();
@@ -32,7 +31,12 @@ window.onload = () => {
     stage.addChild(image01);
     stage.addChild(textField01);
 
-    stage.alpha = 0.3;
+    stage.alpha = 0.8;
+    image01.alpha = 0.4;
+    image01.x = 300;
+    image01.rotation = 30;
+    textField01.alpha = 0.8;
+    textField01.scaleX = 3;
 
 
     setInterval(() => {
@@ -53,22 +57,7 @@ window.onload = () => {
     },100)
 };
 
-class DisplayObjectContainer extends DisplayObject{
-    childArray : DisplayObject[] = [];
-    alpha = 1;
-    globalAlpha = 1;
 
-    addChild(child : DisplayObject){
-        this.childArray.push(child);
-        child.parent = this;
-    }
-
-    render(context2D : CanvasRenderingContext2D){
-        for(let displayObject of this.childArray){
-            displayObject.draw(context2D);
-        }
-    }
-}
 
 
 

@@ -1,34 +1,73 @@
+
+
 interface Drawable{
     render(context2D : CanvasRenderingContext2D);
 }
+
+
 
 class DisplayObject implements Drawable{
     parent : DisplayObjectContainer;
     alpha = 1;
     globalAlpha = 1;
-    scalX = 1;
-    scalY = 1;
+    scaleX = 1;
+    scaleY = 1;
+    x = 0;
+    y = 0;
+    rotation = 0;
+    // hasBeenCalculated = false;
+    matrix = new math.Matrix();
+    globalMatrix = new math.Matrix();
 
     draw(context2D : CanvasRenderingContext2D){
+        this.matrix.updateFromDisplayObject(this.x,this.y,this.scaleX,this.scaleY,this.rotation);
         if(this.parent){
             this.globalAlpha = this.parent.globalAlpha * this.alpha;
+            this.globalMatrix = math.matrixAppendMatrix(this.matrix,this.parent.globalMatrix);
+            // this.hasBeenCalculated = true;
+            // context2D.globalAlpha = this.globalAlpha;
+            // context2D.translate(this.globalMatrix.tx,this.globalMatrix.ty);
+            // context2D.scale(this.globalMatrix.a,this.globalMatrix.d);
+            // context2D.rotate(Math.acos(this.globalMatrix.a / this.globalMatrix.a));
+            //console.log("Don't");
         }
-        else{
+        if(this.parent == null){
             this.globalAlpha = this.alpha;
+            this.globalMatrix = this.matrix;
+            // context2D.globalAlpha = this.globalAlpha;
+            // context2D.translate(this.globalMatrix.tx,this.globalMatrix.ty);
+            // context2D.scale(this.globalMatrix.a,this.globalMatrix.d);
+            // context2D.rotate(Math.acos(this.globalMatrix.a / this.globalMatrix.a));
+            //context2D.setTransform(this.globalMatrix.a,this.globalMatrix.b,this.globalMatrix.c,this.globalMatrix.d,this.globalMatrix.tx,this.globalMatrix.ty);
         }
         context2D.globalAlpha = this.globalAlpha;
-        //console.log("Alpha:" + context2D.globalAlpha);
+        context2D.setTransform(this.globalMatrix.a,this.globalMatrix.b,this.globalMatrix.c,this.globalMatrix.d,this.globalMatrix.tx,this.globalMatrix.ty);
+        //context2D.transform(this.globalMatrix.a,this.globalMatrix.b,this.globalMatrix.c,this.globalMatrix.d,this.globalMatrix.tx,this.globalMatrix.ty);
+        //console.log(this.globalAlpha);
         this.render(context2D);
     }
     render(context2D : CanvasRenderingContext2D){}
+}
+
+class DisplayObjectContainer extends DisplayObject{
+    childArray : DisplayObject[] = [];
+
+    addChild(child : DisplayObject){
+        this.childArray.push(child);
+        child.parent = this;
+    }
+
+    render(context2D : CanvasRenderingContext2D){
+        for(let displayObject of this.childArray){
+            displayObject.draw(context2D);
+        }
+    }
 }
 
 class TestField extends DisplayObject{
 
     text = "";
     textColor = "#000000";
-    x = 0;
-    y = 8;
     size = 18;
     typeFace = "Arial";
     textType = "18px Arial";
@@ -43,7 +82,7 @@ class TestField extends DisplayObject{
         context2D.fillStyle = this.textColor;
         context2D.font = this.textType;
         context2D.fillText(this.text,this.x,this.y + this.size);
-        console.log("textAlpha:" + context2D.globalAlpha);
+        //console.log("textAlpha:" + context2D.globalAlpha);
     }
 
     setText(text){
@@ -78,8 +117,6 @@ class TestField extends DisplayObject{
 class Bitmap extends DisplayObject{
 
     imageID = "";
-    x = 0;
-    y = 0;
     imageCache;
 
     constructor(){
@@ -98,7 +135,7 @@ class Bitmap extends DisplayObject{
                 context2D.drawImage(image,this.x,this.y);
             }
         }
-        console.log("imageAlpha:" + context2D.globalAlpha);
+        //console.log("imageAlpha:" + context2D.globalAlpha);
     }
 
     setImage(text){
