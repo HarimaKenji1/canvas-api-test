@@ -34,6 +34,7 @@ window.onload = () => {
     stage.alpha = 0.8;
     image01.alpha = 0.4;
     image01.x = 300;
+    image01.scaleY = 2;
     image01.rotation = 30;
     textField01.alpha = 0.8;
     textField01.scaleX = 3;
