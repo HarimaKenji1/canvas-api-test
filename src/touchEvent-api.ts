@@ -1,15 +1,19 @@
+enum TouchEventsType{
+    MOUSEDOWN = 0,
+    MOUSEUP = 1,
+    CLICK = 2,
+    MOUSEMOVE = 3
+}
+
 class TouchEvents {
-    type: number;
+    type: TouchEventsType;
     func: Function;
     obj: any;
     capture = false;
     priority = 0;
 
-    static MOUSEDOWN= 0;
-    static MOUSEUP = 1;
-    static CLICK = 2;
 
-    constructor(type: number, func: Function, obj: any, capture?: boolean, priority?: number) {
+    constructor(type: TouchEventsType, func: Function, obj: any, capture?: boolean, priority?: number) {
         this.type = type;
         this.func = func;
         this.obj = obj;

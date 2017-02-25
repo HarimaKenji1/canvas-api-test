@@ -1,4 +1,6 @@
 window.onload = function () {
+    var clickPoint = new math.Point(-1, -1);
+    var isMouseDown = false;
     var canvas = document.getElementById("test");
     var context2D = canvas.getContext("2d");
     // context2D.fillStyle = "#FF0000";
@@ -32,20 +34,34 @@ window.onload = function () {
     window.onmousedown = function (e) {
         var x = e.offsetX - 3;
         var y = e.offsetY - 3;
-        var type = "mousedown";
-        // console.log(image01.width);
-        // console.log(image01.height);
-        console.log(stage.hitTest(x, y));
+        clickPoint.x = x;
+        clickPoint.y = y;
+        var type = TouchEventsType.MOUSEDOWN;
+        stage.hitTest(x, y, type);
+        isMouseDown = true;
+        console.log(type);
     };
     window.onmouseup = function (e) {
         var x = e.offsetX - 3;
         var y = e.offsetY - 3;
-        var type = "mouseup";
+        var type = TouchEventsType.MOUSEUP;
+        if (clickPoint.x == x && clickPoint.y == y) {
+            type = TouchEventsType.CLICK;
+        }
+        stage.hitTest(x, y, type);
+        console.log(type);
+        clickPoint.x = -1;
+        clickPoint.y = -1;
+        isMouseDown = false;
     };
     window.onmousemove = function (e) {
-        var x = e.offsetX - 3;
-        var y = e.offsetY - 3;
-        var type = "mousemove";
+        if (isMouseDown) {
+            var x = e.offsetX - 3;
+            var y = e.offsetY - 3;
+            var type = TouchEventsType.MOUSEMOVE;
+            console.log(type);
+            stage.hitTest(x, y, type);
+        }
     };
     setInterval(function () {
         context2D.save();

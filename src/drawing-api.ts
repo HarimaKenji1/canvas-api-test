@@ -18,6 +18,7 @@ abstract class DisplayObject implements Drawable{
     // hasBeenCalculated = false;
     localMatrix = new math.Matrix();
     globalMatrix = new math.Matrix();
+    listeners : TouchEvents[] = [];
 
     draw(context2D : CanvasRenderingContext2D){
         this.localMatrix.updateFromDisplayObject(this.x,this.y,this.scaleX,this.scaleY,this.rotation);
@@ -47,13 +48,14 @@ abstract class DisplayObject implements Drawable{
         this.render(context2D);
     }
 
-    addEventListener(type : string){
-
+    addEventListener(type : TouchEventsType,touchFunction : Function,object : any,ifCapture? : boolean,priority?: number){
+        var touchEvent = new TouchEvents(type,touchFunction,object,ifCapture,priority);
+        this.listeners.push(touchEvent);
     }
 
     abstract render(context2D : CanvasRenderingContext2D)
 
-    abstract hitTest(x : number,y : number):DisplayObject
+    abstract hitTest(x : number,y : number,type : TouchEventsType):DisplayObject
 }
 
 class DisplayObjectContainer extends DisplayObject{
@@ -70,13 +72,13 @@ class DisplayObjectContainer extends DisplayObject{
         }
     }
 
-    hitTest(x : number,y: number){
+    hitTest(x : number,y: number,type : TouchEventsType){
         for(let i = this.childArray.length - 1;i >= 0;i--){
             var child = this.childArray[i];
             var point = new math.Point(x,y);
             var invertChildenLocalMatirx = math.invertMatrix(child.localMatrix);
             var pointBasedOnChild = math.pointAppendMatrix(point,invertChildenLocalMatirx);
-            var hitTestResult = child.hitTest(pointBasedOnChild.x,pointBasedOnChild.y);
+            var hitTestResult = child.hitTest(pointBasedOnChild.x,pointBasedOnChild.y,type);
             if(hitTestResult){
                 return hitTestResult;
             }
@@ -106,12 +108,17 @@ class TestField extends DisplayObject{
         //console.log("textAlpha:" + context2D.globalAlpha);
     }
 
-    hitTest(x : number,y :number){
+    hitTest(x : number,y :number,type : TouchEventsType){
         var rect = new math.Rectangle();
         rect.x = rect.y = 0;
-        rect.width =this.size * this.text.length;
+        rect.width = this.size * this.text.length;
         rect.height = this.size;
         if(rect.isPointInRectangle(x,y)){
+            for(var listener of this.listeners){
+                if(listener.type == type){
+                    listener.func();
+                }
+            }
             return this;
         }
         else{
@@ -179,12 +186,17 @@ class Bitmap extends DisplayObject{
         //console.log("imageAlpha:" + context2D.globalAlpha);
     }
 
-    hitTest(x : number,y :number){
+    hitTest(x : number,y :number,type : TouchEventsType){
         var rect = new math.Rectangle();
         rect.x = rect.y = 0;
         rect.width = this.image.width;
         rect.height = this.image.height;
         if(rect.isPointInRectangle(x,y)){
+            for(var listener of this.listeners){
+                if(listener.type == type){
+                    listener.func();
+                }
+            }
             return this;
         }
         else{

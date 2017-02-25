@@ -15,6 +15,7 @@ var DisplayObject = (function () {
         // hasBeenCalculated = false;
         this.localMatrix = new math.Matrix();
         this.globalMatrix = new math.Matrix();
+        this.listeners = [];
     }
     DisplayObject.prototype.draw = function (context2D) {
         this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
@@ -32,7 +33,9 @@ var DisplayObject = (function () {
         //console.log(this.globalAlpha);
         this.render(context2D);
     };
-    DisplayObject.prototype.addEventListener = function (type) {
+    DisplayObject.prototype.addEventListener = function (type, touchFunction, object, ifCapture, priority) {
+        var touchEvent = new TouchEvents(type, touchFunction, object, ifCapture, priority);
+        this.listeners.push(touchEvent);
     };
     return DisplayObject;
 }());
@@ -52,13 +55,13 @@ var DisplayObjectContainer = (function (_super) {
             displayObject.draw(context2D);
         }
     };
-    DisplayObjectContainer.prototype.hitTest = function (x, y) {
+    DisplayObjectContainer.prototype.hitTest = function (x, y, type) {
         for (var i = this.childArray.length - 1; i >= 0; i--) {
             var child = this.childArray[i];
             var point = new math.Point(x, y);
             var invertChildenLocalMatirx = math.invertMatrix(child.localMatrix);
             var pointBasedOnChild = math.pointAppendMatrix(point, invertChildenLocalMatirx);
-            var hitTestResult = child.hitTest(pointBasedOnChild.x, pointBasedOnChild.y);
+            var hitTestResult = child.hitTest(pointBasedOnChild.x, pointBasedOnChild.y, type);
             if (hitTestResult) {
                 return hitTestResult;
             }
@@ -83,12 +86,18 @@ var TestField = (function (_super) {
         context2D.fillText(this.text, 0, 0 + this.size);
         //console.log("textAlpha:" + context2D.globalAlpha);
     };
-    TestField.prototype.hitTest = function (x, y) {
+    TestField.prototype.hitTest = function (x, y, type) {
         var rect = new math.Rectangle();
         rect.x = rect.y = 0;
         rect.width = this.size * this.text.length;
         rect.height = this.size;
         if (rect.isPointInRectangle(x, y)) {
+            for (var _i = 0, _a = this.listeners; _i < _a.length; _i++) {
+                var listener = _a[_i];
+                if (listener.type == type) {
+                    listener.func();
+                }
+            }
             return this;
         }
         else {
@@ -148,12 +157,18 @@ var Bitmap = (function (_super) {
         }
         //console.log("imageAlpha:" + context2D.globalAlpha);
     };
-    Bitmap.prototype.hitTest = function (x, y) {
+    Bitmap.prototype.hitTest = function (x, y, type) {
         var rect = new math.Rectangle();
         rect.x = rect.y = 0;
         rect.width = this.image.width;
         rect.height = this.image.height;
         if (rect.isPointInRectangle(x, y)) {
+            for (var _i = 0, _a = this.listeners; _i < _a.length; _i++) {
+                var listener = _a[_i];
+                if (listener.type == type) {
+                    listener.func();
+                }
+            }
             return this;
         }
         else {
