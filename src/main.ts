@@ -22,27 +22,49 @@ window.onload = () => {
     textField01.setTextColor("#00FF00");
     textField01.setSize(30);
 
-    var image01 = new Bitmap();
-    image01.setImage("src/timg.jpg");
+    var image01 = new Bitmap("src/timg.jpg");
 
-    
 
 
     stage.addChild(image01);
     stage.addChild(textField01);
 
-    stage.alpha = 0.8;
-    image01.alpha = 0.4;
-    image01.x = 300;
-    image01.scaleY = 2;
-    image01.rotation = 30;
-    textField01.alpha = 0.8;
-    textField01.scaleX = 3;
+    // stage.alpha = 0.8;
+    // image01.alpha = 0.4;
+    image01.x = 100;
+    textField01.y = 50;
+    // image01.scaleY = 2;
+    // image01.rotation = 30;
+    // textField01.alpha = 0.8;
+    // textField01.scaleX = 3;
+
+    window.onmousedown = (e) =>{
+        let x = e.offsetX - 3;
+        let y = e.offsetY - 3;
+        let type = "mousedown";
+        // console.log(image01.width);
+        // console.log(image01.height);
+        console.log(stage.hitTest(x,y));
+    }
+
+    window.onmouseup = (e) =>{
+        let x = e.offsetX - 3;
+        let y = e.offsetY - 3;
+        let type = "mouseup";
+    }
+
+    window.onmousemove = (e) =>{
+        let x = e.offsetX - 3;
+        let y = e.offsetY - 3;
+        let type = "mousemove";
+    }
 
 
     setInterval(() => {
+        context2D.save();
         context2D.clearRect(0,0,canvas.width,canvas.height);
         stage.draw(context2D);
+        context2D.restore();
         // var rect = new Shape();
         // rect.graphics.beginFill("#FF0000",1);
         // rect.graphics.drawRect(0,300,100,100,context2D);
@@ -56,6 +78,7 @@ window.onload = () => {
         // arc.graphics.drawArc(100,200,20,0,Math.PI,context2D);
         // arc.graphics.endFill();
     },100)
+
 };
 
 

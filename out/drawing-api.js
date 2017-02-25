@@ -13,18 +13,18 @@ var DisplayObject = (function () {
         this.y = 0;
         this.rotation = 0;
         // hasBeenCalculated = false;
-        this.matrix = new math.Matrix();
+        this.localMatrix = new math.Matrix();
         this.globalMatrix = new math.Matrix();
     }
     DisplayObject.prototype.draw = function (context2D) {
-        this.matrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
+        this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
         if (this.parent) {
             this.globalAlpha = this.parent.globalAlpha * this.alpha;
-            this.globalMatrix = math.matrixAppendMatrix(this.matrix, this.parent.globalMatrix);
+            this.globalMatrix = math.matrixAppendMatrix(this.localMatrix, this.parent.globalMatrix);
         }
         if (this.parent == null) {
             this.globalAlpha = this.alpha;
-            this.globalMatrix = this.matrix;
+            this.globalMatrix = this.localMatrix;
         }
         context2D.globalAlpha = this.globalAlpha;
         context2D.setTransform(this.globalMatrix.a, this.globalMatrix.b, this.globalMatrix.c, this.globalMatrix.d, this.globalMatrix.tx, this.globalMatrix.ty);
@@ -32,7 +32,8 @@ var DisplayObject = (function () {
         //console.log(this.globalAlpha);
         this.render(context2D);
     };
-    DisplayObject.prototype.render = function (context2D) { };
+    DisplayObject.prototype.addEventListener = function (type) {
+    };
     return DisplayObject;
 }());
 var DisplayObjectContainer = (function (_super) {
@@ -51,6 +52,19 @@ var DisplayObjectContainer = (function (_super) {
             displayObject.draw(context2D);
         }
     };
+    DisplayObjectContainer.prototype.hitTest = function (x, y) {
+        for (var i = this.childArray.length - 1; i >= 0; i--) {
+            var child = this.childArray[i];
+            var point = new math.Point(x, y);
+            var invertChildenLocalMatirx = math.invertMatrix(child.localMatrix);
+            var pointBasedOnChild = math.pointAppendMatrix(point, invertChildenLocalMatirx);
+            var hitTestResult = child.hitTest(pointBasedOnChild.x, pointBasedOnChild.y);
+            if (hitTestResult) {
+                return hitTestResult;
+            }
+        }
+        return null;
+    };
     return DisplayObjectContainer;
 }(DisplayObject));
 var TestField = (function (_super) {
@@ -66,8 +80,20 @@ var TestField = (function (_super) {
     TestField.prototype.render = function (context2D) {
         context2D.fillStyle = this.textColor;
         context2D.font = this.textType;
-        context2D.fillText(this.text, this.x, this.y + this.size);
+        context2D.fillText(this.text, 0, 0 + this.size);
         //console.log("textAlpha:" + context2D.globalAlpha);
+    };
+    TestField.prototype.hitTest = function (x, y) {
+        var rect = new math.Rectangle();
+        rect.x = rect.y = 0;
+        rect.width = this.size * this.text.length;
+        rect.height = this.size;
+        if (rect.isPointInRectangle(x, y)) {
+            return this;
+        }
+        else {
+            return null;
+        }
     };
     TestField.prototype.setText = function (text) {
         this.text = text;
@@ -84,35 +110,55 @@ var TestField = (function (_super) {
     TestField.prototype.setSize = function (size) {
         this.size = size;
         this.textType = this.size.toString() + "px " + this.typeFace;
-        console.log(this.textType);
     };
     TestField.prototype.setTypeFace = function (typeFace) {
         this.typeFace = typeFace;
         this.textType = this.size.toString() + "px " + this.typeFace;
-        console.log(this.textType);
     };
     return TestField;
 }(DisplayObject));
 var Bitmap = (function (_super) {
     __extends(Bitmap, _super);
-    function Bitmap() {
+    function Bitmap(id) {
+        var _this = this;
         _super.call(this);
         this.imageID = "";
+        this.width = 1;
+        this.height = 1;
+        this.imageID = id;
+        this.image = new Image();
+        this.image.src = this.imageID;
+        this.image.onload = function () {
+            _this.width = _this.image.width;
+            _this.height = _this.image.height;
+        };
     }
     Bitmap.prototype.render = function (context2D) {
         var _this = this;
-        var image = new Image();
-        image.src = this.imageID;
-        this.imageCache = image;
-        if (this.imageCache) {
-            context2D.drawImage(this.imageCache, this.x, this.y);
+        // var imageTemp = new Image();
+        // imageTemp.src = this.imageID;
+        // this.imageCache = this.image;
+        if (this.image) {
+            context2D.drawImage(this.image, 0, 0);
         }
         else {
-            image.onload = function () {
-                context2D.drawImage(image, _this.x, _this.y);
+            this.image.onload = function () {
+                context2D.drawImage(_this.image, 0, 0);
             };
         }
         //console.log("imageAlpha:" + context2D.globalAlpha);
+    };
+    Bitmap.prototype.hitTest = function (x, y) {
+        var rect = new math.Rectangle();
+        rect.x = rect.y = 0;
+        rect.width = this.image.width;
+        rect.height = this.image.height;
+        if (rect.isPointInRectangle(x, y)) {
+            return this;
+        }
+        else {
+            return null;
+        }
     };
     Bitmap.prototype.setImage = function (text) {
         this.imageID = text;

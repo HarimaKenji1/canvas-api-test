@@ -6,7 +6,7 @@ interface Drawable{
 
 
 
-class DisplayObject implements Drawable{
+abstract class DisplayObject implements Drawable{
     parent : DisplayObjectContainer;
     alpha = 1;
     globalAlpha = 1;
@@ -16,14 +16,14 @@ class DisplayObject implements Drawable{
     y = 0;
     rotation = 0;
     // hasBeenCalculated = false;
-    matrix = new math.Matrix();
+    localMatrix = new math.Matrix();
     globalMatrix = new math.Matrix();
 
     draw(context2D : CanvasRenderingContext2D){
-        this.matrix.updateFromDisplayObject(this.x,this.y,this.scaleX,this.scaleY,this.rotation);
+        this.localMatrix.updateFromDisplayObject(this.x,this.y,this.scaleX,this.scaleY,this.rotation);
         if(this.parent){
             this.globalAlpha = this.parent.globalAlpha * this.alpha;
-            this.globalMatrix = math.matrixAppendMatrix(this.matrix,this.parent.globalMatrix);
+            this.globalMatrix = math.matrixAppendMatrix(this.localMatrix,this.parent.globalMatrix);
             // this.hasBeenCalculated = true;
             // context2D.globalAlpha = this.globalAlpha;
             // context2D.translate(this.globalMatrix.tx,this.globalMatrix.ty);
@@ -33,7 +33,7 @@ class DisplayObject implements Drawable{
         }
         if(this.parent == null){
             this.globalAlpha = this.alpha;
-            this.globalMatrix = this.matrix;
+            this.globalMatrix = this.localMatrix;
             // context2D.globalAlpha = this.globalAlpha;
             // context2D.translate(this.globalMatrix.tx,this.globalMatrix.ty);
             // context2D.scale(this.globalMatrix.a,this.globalMatrix.d);
@@ -46,7 +46,14 @@ class DisplayObject implements Drawable{
         //console.log(this.globalAlpha);
         this.render(context2D);
     }
-    render(context2D : CanvasRenderingContext2D){}
+
+    addEventListener(type : string){
+
+    }
+
+    abstract render(context2D : CanvasRenderingContext2D)
+
+    abstract hitTest(x : number,y : number):DisplayObject
 }
 
 class DisplayObjectContainer extends DisplayObject{
@@ -61,6 +68,20 @@ class DisplayObjectContainer extends DisplayObject{
         for(let displayObject of this.childArray){
             displayObject.draw(context2D);
         }
+    }
+
+    hitTest(x : number,y: number){
+        for(let i = this.childArray.length - 1;i >= 0;i--){
+            var child = this.childArray[i];
+            var point = new math.Point(x,y);
+            var invertChildenLocalMatirx = math.invertMatrix(child.localMatrix);
+            var pointBasedOnChild = math.pointAppendMatrix(point,invertChildenLocalMatirx);
+            var hitTestResult = child.hitTest(pointBasedOnChild.x,pointBasedOnChild.y);
+            if(hitTestResult){
+                return hitTestResult;
+            }
+        }
+        return null;
     }
 }
 
@@ -81,8 +102,21 @@ class TestField extends DisplayObject{
     render(context2D : CanvasRenderingContext2D){
         context2D.fillStyle = this.textColor;
         context2D.font = this.textType;
-        context2D.fillText(this.text,this.x,this.y + this.size);
+        context2D.fillText(this.text,0,0 + this.size);
         //console.log("textAlpha:" + context2D.globalAlpha);
+    }
+
+    hitTest(x : number,y :number){
+        var rect = new math.Rectangle();
+        rect.x = rect.y = 0;
+        rect.width =this.size * this.text.length;
+        rect.height = this.size;
+        if(rect.isPointInRectangle(x,y)){
+            return this;
+        }
+        else{
+            return null;
+        }
     }
 
     setText(text){
@@ -104,38 +138,58 @@ class TestField extends DisplayObject{
     setSize(size){
         this.size = size;
         this.textType = this.size.toString() + "px " + this.typeFace;
-        console.log(this.textType);
     }
 
     setTypeFace(typeFace){
         this.typeFace = typeFace;
         this.textType = this.size.toString() + "px " + this.typeFace;
-        console.log(this.textType);
     }
 }
 
 class Bitmap extends DisplayObject{
 
     imageID = "";
-    imageCache;
+    image : HTMLImageElement;
+    width = 1;
+    height = 1;
 
-    constructor(){
+    constructor(id : string){
         super();
+        this.imageID = id;
+        this.image = new Image();
+        this.image.src = this.imageID;
+        this.image.onload = () =>{
+            this.width = this.image.width;
+            this.height = this.image.height;
+        }
     }
 
     render(context2D : CanvasRenderingContext2D){
-        var image = new Image();
-        image.src = this.imageID;
-        this.imageCache = image;
-        if(this.imageCache){
-            context2D.drawImage(this.imageCache,this.x,this.y);
+        // var imageTemp = new Image();
+        // imageTemp.src = this.imageID;
+        // this.imageCache = this.image;
+        if(this.image){
+            context2D.drawImage(this.image,0,0);
         }
         else{
-            image.onload = () =>{
-                context2D.drawImage(image,this.x,this.y);
+            this.image.onload = () =>{
+                context2D.drawImage(this.image,0,0);
             }
         }
         //console.log("imageAlpha:" + context2D.globalAlpha);
+    }
+
+    hitTest(x : number,y :number){
+        var rect = new math.Rectangle();
+        rect.x = rect.y = 0;
+        rect.width = this.image.width;
+        rect.height = this.image.height;
+        if(rect.isPointInRectangle(x,y)){
+            return this;
+        }
+        else{
+            return null;
+        }
     }
 
     setImage(text){
