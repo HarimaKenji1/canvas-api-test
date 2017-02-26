@@ -7,7 +7,10 @@ enum TouchEventsType{
 
 class TouchEventService{
     private static instance;
-    private touchEventList : TouchEvents[] = [];
+    private performerList : DisplayObject[] = [];
+    static currentType : TouchEventsType;
+    static stageX = -1;
+    static stageY = -1;
     static getInstance() : TouchEventService{
         if(TouchEventService.instance == null){
             TouchEventService.instance = new TouchEventService();
@@ -15,18 +18,40 @@ class TouchEventService{
         return this.instance;
     }
 
-    addTouchEvent(touchEvent : TouchEvents){
-        this.touchEventList.push(touchEvent);
+    addPerformer(performer : DisplayObject){
+        this.performerList.push(performer);
     }
 
     clearList(){
-        this.touchEventList = [];
+        this.performerList = [];
     }
 
     toDo(){
-        for(var event of this.touchEventList){
-            event.func();
+        //console.log(this.performerList);
+        for(var i = 0;i <= this.performerList.length - 1;i++){      //捕获
+            for(var listner of this.performerList[i].listeners){
+                if(listner.type == TouchEventService.currentType){
+                    if(listner.capture){
+                        listner.func();
+                        continue;
+                    }
+                }
+            }
         }
+
+        for(var i = this.performerList.length - 1;i >= 0;i--){      //冒泡
+            for(var listner of this.performerList[i].listeners){
+                if(listner.type == TouchEventService.currentType){
+                    if(!listner.capture){
+                        
+                        //console.log("2");
+                        listner.func();
+                        continue;
+                    }
+                }
+            }
+        }
+        this.clearList();
     }
 }
 

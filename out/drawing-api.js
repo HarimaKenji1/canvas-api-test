@@ -57,36 +57,44 @@ var DisplayObjectContainer = (function (_super) {
             displayObject.draw(context2D);
         }
     };
-    DisplayObjectContainer.prototype.hitTest = function (x, y, type) {
+    DisplayObjectContainer.prototype.hitTest = function (x, y) {
+        // console.log(x);
+        // console.log(y);
         var rect = new math.Rectangle();
         rect.x = rect.y = 0;
         rect.width = this.width;
         rect.height = this.height;
+        var result = null;
         if (rect.isPointInRectangle(x, y)) {
-            for (var _i = 0, _a = this.listeners; _i < _a.length; _i++) {
-                var listener = _a[_i];
-                if (listener.type == type && listener.capture) {
-                    //TouchEventService.getInstance().addPerformer(listener.func());   //捕获
-                    listener.func();
-                }
-            }
+            // for(var listener of this.listeners){
+            //     if(listener.type == TouchEventService.currentType && listener.capture){
+            //         //TouchEventService.getInstance().addPerformer(listener.func());   //捕获
+            //         //listener.func();
+            //         // TouchEventService.getInstance().addPerformer(this);
+            //     }
+            // }
+            result = this;
+            TouchEventService.getInstance().addPerformer(this);
             for (var i = this.childArray.length - 1; i >= 0; i--) {
                 var child = this.childArray[i];
                 var point = new math.Point(x, y);
                 var invertChildenLocalMatirx = math.invertMatrix(child.localMatrix);
                 var pointBasedOnChild = math.pointAppendMatrix(point, invertChildenLocalMatirx);
-                var hitTestResult = child.hitTest(pointBasedOnChild.x, pointBasedOnChild.y, type);
+                var hitTestResult = child.hitTest(pointBasedOnChild.x, pointBasedOnChild.y);
+                //console.log(hitTestResult);
                 if (hitTestResult) {
-                    return hitTestResult;
+                    result = hitTestResult;
+                    break;
                 }
             }
-            for (var _b = 0, _c = this.listeners; _b < _c.length; _b++) {
-                var listener = _c[_b];
-                if (listener.type == type) {
-                    listener.func();
-                }
-            }
-            return this;
+            // for(var listener of this.listeners){
+            //     if(listener.type == TouchEventService.currentType){
+            //         //listener.func();
+            //         TouchEventService.getInstance().addPerformer(this);
+            //     }
+            // }
+            //TouchEventService.getInstance().addPerformer(this);
+            return result;
         }
         return null;
     };
@@ -108,18 +116,20 @@ var TestField = (function (_super) {
         context2D.fillText(this.text, 0, 0 + this.size);
         //console.log("textAlpha:" + context2D.globalAlpha);
     };
-    TestField.prototype.hitTest = function (x, y, type) {
+    TestField.prototype.hitTest = function (x, y) {
+        // console.log("text" + x);
+        // console.log("text" + y);
         var rect = new math.Rectangle();
         rect.x = rect.y = 0;
         rect.width = this.size * this.text.length;
         rect.height = this.size;
         if (rect.isPointInRectangle(x, y)) {
-            for (var _i = 0, _a = this.listeners; _i < _a.length; _i++) {
-                var listener = _a[_i];
-                if (listener.type == type) {
-                    listener.func();
-                }
-            }
+            // for(var listener of this.listeners){
+            //     if(listener.type == TouchEventService.currentType){
+            //         listener.func();
+            //     }
+            // }
+            TouchEventService.getInstance().addPerformer(this);
             return this;
         }
         else {
@@ -177,18 +187,20 @@ var Bitmap = (function (_super) {
         }
         //console.log("imageAlpha:" + context2D.globalAlpha);
     };
-    Bitmap.prototype.hitTest = function (x, y, type) {
+    Bitmap.prototype.hitTest = function (x, y) {
+        // console.log("image" + x);
+        // console.log("image" + y);
         var rect = new math.Rectangle();
         rect.x = rect.y = 0;
         rect.width = this.image.width;
         rect.height = this.image.height;
         if (rect.isPointInRectangle(x, y)) {
-            for (var _i = 0, _a = this.listeners; _i < _a.length; _i++) {
-                var listener = _a[_i];
-                if (listener.type == type) {
-                    listener.func();
-                }
-            }
+            // for(var listener of this.listeners){
+            //     if(listener.type == type){
+            //         listener.func();
+            //     }
+            // }
+            TouchEventService.getInstance().addPerformer(this);
             return this;
         }
         else {

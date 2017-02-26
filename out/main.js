@@ -1,6 +1,9 @@
+var _this = this;
 window.onload = function () {
-    var clickPoint = new math.Point(-1, -1);
+    var currentTarget;
     var isMouseDown = false;
+    var startPoint = new math.Point(-1, -1);
+    var movingPoint = new math.Point(0, 0);
     var canvas = document.getElementById("test");
     var context2D = canvas.getContext("2d");
     // context2D.fillStyle = "#FF0000";
@@ -18,51 +21,92 @@ window.onload = function () {
     var stage = new DisplayObjectContainer();
     stage.width = 600;
     stage.height = 600;
-    var textField01 = new TestField();
-    textField01.setText("Hello world");
-    textField01.setTextColor("#00FF00");
-    textField01.setSize(30);
-    var image01 = new Bitmap("src/timg.jpg");
-    stage.addChild(image01);
-    stage.addChild(textField01);
+    var container = new DisplayObjectContainer();
+    container.width = 600;
+    container.height = 600;
+    // var textField01 = new TestField();
+    // textField01.setText("Hello world");
+    // textField01.setTextColor("#00FF00");
+    // textField01.setSize(30);
+    var list = new Bitmap("src/renwumianbanbeijing.png");
+    var button = new Bitmap("src/wancheng.png");
+    container.addChild(list);
+    container.addChild(button);
+    stage.addChild(container);
+    // stage.addChild(list);
+    // stage.addChild(button);
     // stage.alpha = 0.8;
     // image01.alpha = 0.4;
-    image01.x = 100;
-    textField01.y = 50;
+    button.x = 77;
+    button.y = 230;
     // image01.scaleY = 2;
     // image01.rotation = 30;
     // textField01.alpha = 0.8;
     // textField01.scaleX = 3;
+    stage.addEventListener(TouchEventsType.MOUSEDOWN, function () {
+        console.log("stage");
+    }, _this);
+    container.addEventListener(TouchEventsType.MOUSEMOVE, function () {
+        // console.log("container");
+    }, _this);
+    list.addEventListener(TouchEventsType.MOUSEDOWN, function () {
+        container.x += (TouchEventService.stageX - movingPoint.x);
+        container.y += (TouchEventService.stageY - movingPoint.y);
+        console.log("list");
+    }, _this);
+    button.addEventListener(TouchEventsType.CLICK, function () {
+        alert("OnClick!!!");
+        console.log("button");
+    }, _this);
     window.onmousedown = function (e) {
         var x = e.offsetX - 3;
         var y = e.offsetY - 3;
-        clickPoint.x = x;
-        clickPoint.y = y;
-        var type = TouchEventsType.MOUSEDOWN;
-        stage.hitTest(x, y, type);
+        TouchEventService.stageX = x;
+        TouchEventService.stageY = y;
+        startPoint.x = x;
+        startPoint.y = y;
+        movingPoint.x = x;
+        movingPoint.y = y;
+        TouchEventService.currentType = TouchEventsType.MOUSEDOWN;
+        currentTarget = stage.hitTest(x, y);
+        TouchEventService.getInstance().toDo();
+        //console.log(stage.globalMatrix);
+        //console.log(currentTarget);
+        //TouchEventService.getInstance().clearList();
         isMouseDown = true;
-        console.log(type);
+        //console.log(TouchEventService.currentType);
     };
     window.onmouseup = function (e) {
         var x = e.offsetX - 3;
         var y = e.offsetY - 3;
-        var type = TouchEventsType.MOUSEUP;
-        if (clickPoint.x == x && clickPoint.y == y) {
-            type = TouchEventsType.CLICK;
+        TouchEventService.stageX = x;
+        TouchEventService.stageY = y;
+        var target = stage.hitTest(x, y);
+        //console.log(target);
+        if (target == currentTarget) {
+            TouchEventService.currentType = TouchEventsType.CLICK;
         }
-        stage.hitTest(x, y, type);
-        console.log(type);
-        clickPoint.x = -1;
-        clickPoint.y = -1;
+        else {
+            TouchEventService.currentType = TouchEventsType.MOUSEUP;
+        }
+        TouchEventService.getInstance().toDo();
+        //TouchEventService.getInstance().clearList();
+        //console.log(TouchEventService.currentType);
+        currentTarget = null;
         isMouseDown = false;
     };
     window.onmousemove = function (e) {
         if (isMouseDown) {
             var x = e.offsetX - 3;
             var y = e.offsetY - 3;
-            var type = TouchEventsType.MOUSEMOVE;
-            console.log(type);
-            stage.hitTest(x, y, type);
+            TouchEventService.stageX = x;
+            TouchEventService.stageY = y;
+            TouchEventService.currentType = TouchEventsType.MOUSEMOVE;
+            //console.log(TouchEventService.currentType);
+            stage.hitTest(x, y);
+            TouchEventService.getInstance().toDo();
+            movingPoint.x = x;
+            movingPoint.y = y;
         }
     };
     setInterval(function () {

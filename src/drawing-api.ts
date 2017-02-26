@@ -57,7 +57,7 @@ abstract class DisplayObject implements Drawable{
 
     abstract render(context2D : CanvasRenderingContext2D)
 
-    abstract hitTest(x : number,y : number,type : TouchEventsType):DisplayObject
+    abstract hitTest(x : number,y : number):DisplayObject
 }
 
 class DisplayObjectContainer extends DisplayObject{
@@ -74,36 +74,46 @@ class DisplayObjectContainer extends DisplayObject{
         }
     }
 
-    hitTest(x : number,y: number,type : TouchEventsType) : DisplayObject{
+    hitTest(x : number,y: number) : DisplayObject{
+        // console.log(x);
+        // console.log(y);
         var rect = new math.Rectangle();
         rect.x = rect.y = 0;
         rect.width = this.width;
         rect.height = this.height;
+        var result = null;
         if(rect.isPointInRectangle(x,y)){
-            for(var listener of this.listeners){
-                if(listener.type == type && listener.capture){
-                    //TouchEventService.getInstance().addPerformer(listener.func());   //捕获
-                    listener.func();
-                }
-            }
+            // for(var listener of this.listeners){
+            //     if(listener.type == TouchEventService.currentType && listener.capture){
+            //         //TouchEventService.getInstance().addPerformer(listener.func());   //捕获
+            //         //listener.func();
+            //         // TouchEventService.getInstance().addPerformer(this);
+            //     }
+            // }
+            result = this;
+            TouchEventService.getInstance().addPerformer(this);
 
 
             for(let i = this.childArray.length - 1;i >= 0;i--){
-            var child = this.childArray[i];
-            var point = new math.Point(x,y);
-            var invertChildenLocalMatirx = math.invertMatrix(child.localMatrix);
-            var pointBasedOnChild = math.pointAppendMatrix(point,invertChildenLocalMatirx);
-            var hitTestResult = child.hitTest(pointBasedOnChild.x,pointBasedOnChild.y,type);
-            if(hitTestResult){
-                return hitTestResult;
-            }
-        }
-            for(var listener of this.listeners){
-                if(listener.type == type){
-                    listener.func();
+                var child = this.childArray[i];
+                var point = new math.Point(x,y);
+                var invertChildenLocalMatirx = math.invertMatrix(child.localMatrix);
+                var pointBasedOnChild = math.pointAppendMatrix(point,invertChildenLocalMatirx);
+                var hitTestResult = child.hitTest(pointBasedOnChild.x,pointBasedOnChild.y);
+                //console.log(hitTestResult);
+                if(hitTestResult){
+                    result = hitTestResult;
+                    break;
                 }
             }
-            return this;
+            // for(var listener of this.listeners){
+            //     if(listener.type == TouchEventService.currentType){
+            //         //listener.func();
+            //         TouchEventService.getInstance().addPerformer(this);
+            //     }
+            // }
+            //TouchEventService.getInstance().addPerformer(this);
+            return result;
         }
 
         return null;
@@ -131,17 +141,20 @@ class TestField extends DisplayObject{
         //console.log("textAlpha:" + context2D.globalAlpha);
     }
 
-    hitTest(x : number,y :number,type : TouchEventsType){
+    hitTest(x : number,y :number){
+        // console.log("text" + x);
+        // console.log("text" + y);
         var rect = new math.Rectangle();
         rect.x = rect.y = 0;
         rect.width = this.size * this.text.length;
         rect.height = this.size;
         if(rect.isPointInRectangle(x,y)){
-            for(var listener of this.listeners){
-                if(listener.type == type){
-                    listener.func();
-                }
-            }
+            // for(var listener of this.listeners){
+            //     if(listener.type == TouchEventService.currentType){
+            //         listener.func();
+            //     }
+            // }
+            TouchEventService.getInstance().addPerformer(this);
             return this;
         }
         else{
@@ -208,17 +221,20 @@ class Bitmap extends DisplayObject{
         //console.log("imageAlpha:" + context2D.globalAlpha);
     }
 
-    hitTest(x : number,y :number,type : TouchEventsType){
+    hitTest(x : number,y :number){
+        // console.log("image" + x);
+        // console.log("image" + y);
         var rect = new math.Rectangle();
         rect.x = rect.y = 0;
         rect.width = this.image.width;
         rect.height = this.image.height;
         if(rect.isPointInRectangle(x,y)){
-            for(var listener of this.listeners){
-                if(listener.type == type){
-                    listener.func();
-                }
-            }
+            // for(var listener of this.listeners){
+            //     if(listener.type == type){
+            //         listener.func();
+            //     }
+            // }
+            TouchEventService.getInstance().addPerformer(this);
             return this;
         }
         else{

@@ -7,7 +7,7 @@ var TouchEventsType;
 })(TouchEventsType || (TouchEventsType = {}));
 var TouchEventService = (function () {
     function TouchEventService() {
-        this.touchEventList = [];
+        this.performerList = [];
     }
     TouchEventService.getInstance = function () {
         if (TouchEventService.instance == null) {
@@ -15,18 +15,41 @@ var TouchEventService = (function () {
         }
         return this.instance;
     };
-    TouchEventService.prototype.addTouchEvent = function (touchEvent) {
-        this.touchEventList.push(touchEvent);
+    TouchEventService.prototype.addPerformer = function (performer) {
+        this.performerList.push(performer);
     };
     TouchEventService.prototype.clearList = function () {
-        this.touchEventList = [];
+        this.performerList = [];
     };
     TouchEventService.prototype.toDo = function () {
-        for (var _i = 0, _a = this.touchEventList; _i < _a.length; _i++) {
-            var event = _a[_i];
-            event.func();
+        //console.log(this.performerList);
+        for (var i = 0; i <= this.performerList.length - 1; i++) {
+            for (var _i = 0, _a = this.performerList[i].listeners; _i < _a.length; _i++) {
+                var listner = _a[_i];
+                if (listner.type == TouchEventService.currentType) {
+                    if (listner.capture) {
+                        listner.func();
+                        continue;
+                    }
+                }
+            }
         }
+        for (var i = this.performerList.length - 1; i >= 0; i--) {
+            for (var _b = 0, _c = this.performerList[i].listeners; _b < _c.length; _b++) {
+                var listner = _c[_b];
+                if (listner.type == TouchEventService.currentType) {
+                    if (!listner.capture) {
+                        //console.log("2");
+                        listner.func();
+                        continue;
+                    }
+                }
+            }
+        }
+        this.clearList();
     };
+    TouchEventService.stageX = -1;
+    TouchEventService.stageY = -1;
     return TouchEventService;
 }());
 var TouchEvents = (function () {
