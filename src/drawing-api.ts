@@ -19,6 +19,8 @@ abstract class DisplayObject implements Drawable{
     localMatrix = new math.Matrix();
     globalMatrix = new math.Matrix();
     listeners : TouchEvents[] = [];
+    width = 1;
+    height = 1;
 
     draw(context2D : CanvasRenderingContext2D){
         this.localMatrix.updateFromDisplayObject(this.x,this.y,this.scaleX,this.scaleY,this.rotation);
@@ -72,8 +74,21 @@ class DisplayObjectContainer extends DisplayObject{
         }
     }
 
-    hitTest(x : number,y: number,type : TouchEventsType){
-        for(let i = this.childArray.length - 1;i >= 0;i--){
+    hitTest(x : number,y: number,type : TouchEventsType) : DisplayObject{
+        var rect = new math.Rectangle();
+        rect.x = rect.y = 0;
+        rect.width = this.width;
+        rect.height = this.height;
+        if(rect.isPointInRectangle(x,y)){
+            for(var listener of this.listeners){
+                if(listener.type == type && listener.capture){
+                    //TouchEventService.getInstance().addPerformer(listener.func());   //捕获
+                    listener.func();
+                }
+            }
+
+
+            for(let i = this.childArray.length - 1;i >= 0;i--){
             var child = this.childArray[i];
             var point = new math.Point(x,y);
             var invertChildenLocalMatirx = math.invertMatrix(child.localMatrix);
@@ -83,6 +98,14 @@ class DisplayObjectContainer extends DisplayObject{
                 return hitTestResult;
             }
         }
+            for(var listener of this.listeners){
+                if(listener.type == type){
+                    listener.func();
+                }
+            }
+            return this;
+        }
+
         return null;
     }
 }
@@ -157,8 +180,7 @@ class Bitmap extends DisplayObject{
 
     imageID = "";
     image : HTMLImageElement;
-    width = 1;
-    height = 1;
+
 
     constructor(id : string){
         super();

@@ -16,6 +16,8 @@ window.onload = function () {
     // context2D.drawImage(image,0,0);
     // }
     var stage = new DisplayObjectContainer();
+    stage.width = 600;
+    stage.height = 600;
     var textField01 = new TestField();
     textField01.setText("Hello world");
     textField01.setTextColor("#00FF00");

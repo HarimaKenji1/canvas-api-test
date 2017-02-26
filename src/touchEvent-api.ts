@@ -5,6 +5,31 @@ enum TouchEventsType{
     MOUSEMOVE = 3
 }
 
+class TouchEventService{
+    private static instance;
+    private touchEventList : TouchEvents[] = [];
+    static getInstance() : TouchEventService{
+        if(TouchEventService.instance == null){
+            TouchEventService.instance = new TouchEventService();
+        }
+        return this.instance;
+    }
+
+    addTouchEvent(touchEvent : TouchEvents){
+        this.touchEventList.push(touchEvent);
+    }
+
+    clearList(){
+        this.touchEventList = [];
+    }
+
+    toDo(){
+        for(var event of this.touchEventList){
+            event.func();
+        }
+    }
+}
+
 class TouchEvents {
     type: TouchEventsType;
     func: Function;

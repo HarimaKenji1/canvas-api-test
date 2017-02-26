@@ -5,6 +5,30 @@ var TouchEventsType;
     TouchEventsType[TouchEventsType["CLICK"] = 2] = "CLICK";
     TouchEventsType[TouchEventsType["MOUSEMOVE"] = 3] = "MOUSEMOVE";
 })(TouchEventsType || (TouchEventsType = {}));
+var TouchEventService = (function () {
+    function TouchEventService() {
+        this.touchEventList = [];
+    }
+    TouchEventService.getInstance = function () {
+        if (TouchEventService.instance == null) {
+            TouchEventService.instance = new TouchEventService();
+        }
+        return this.instance;
+    };
+    TouchEventService.prototype.addTouchEvent = function (touchEvent) {
+        this.touchEventList.push(touchEvent);
+    };
+    TouchEventService.prototype.clearList = function () {
+        this.touchEventList = [];
+    };
+    TouchEventService.prototype.toDo = function () {
+        for (var _i = 0, _a = this.touchEventList; _i < _a.length; _i++) {
+            var event = _a[_i];
+            event.func();
+        }
+    };
+    return TouchEventService;
+}());
 var TouchEvents = (function () {
     function TouchEvents(type, func, obj, capture, priority) {
         this.capture = false;

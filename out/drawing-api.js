@@ -16,6 +16,8 @@ var DisplayObject = (function () {
         this.localMatrix = new math.Matrix();
         this.globalMatrix = new math.Matrix();
         this.listeners = [];
+        this.width = 1;
+        this.height = 1;
     }
     DisplayObject.prototype.draw = function (context2D) {
         this.localMatrix.updateFromDisplayObject(this.x, this.y, this.scaleX, this.scaleY, this.rotation);
@@ -56,15 +58,35 @@ var DisplayObjectContainer = (function (_super) {
         }
     };
     DisplayObjectContainer.prototype.hitTest = function (x, y, type) {
-        for (var i = this.childArray.length - 1; i >= 0; i--) {
-            var child = this.childArray[i];
-            var point = new math.Point(x, y);
-            var invertChildenLocalMatirx = math.invertMatrix(child.localMatrix);
-            var pointBasedOnChild = math.pointAppendMatrix(point, invertChildenLocalMatirx);
-            var hitTestResult = child.hitTest(pointBasedOnChild.x, pointBasedOnChild.y, type);
-            if (hitTestResult) {
-                return hitTestResult;
+        var rect = new math.Rectangle();
+        rect.x = rect.y = 0;
+        rect.width = this.width;
+        rect.height = this.height;
+        if (rect.isPointInRectangle(x, y)) {
+            for (var _i = 0, _a = this.listeners; _i < _a.length; _i++) {
+                var listener = _a[_i];
+                if (listener.type == type && listener.capture) {
+                    //TouchEventService.getInstance().addPerformer(listener.func());   //捕获
+                    listener.func();
+                }
             }
+            for (var i = this.childArray.length - 1; i >= 0; i--) {
+                var child = this.childArray[i];
+                var point = new math.Point(x, y);
+                var invertChildenLocalMatirx = math.invertMatrix(child.localMatrix);
+                var pointBasedOnChild = math.pointAppendMatrix(point, invertChildenLocalMatirx);
+                var hitTestResult = child.hitTest(pointBasedOnChild.x, pointBasedOnChild.y, type);
+                if (hitTestResult) {
+                    return hitTestResult;
+                }
+            }
+            for (var _b = 0, _c = this.listeners; _b < _c.length; _b++) {
+                var listener = _c[_b];
+                if (listener.type == type) {
+                    listener.func();
+                }
+            }
+            return this;
         }
         return null;
     };
@@ -132,8 +154,6 @@ var Bitmap = (function (_super) {
         var _this = this;
         _super.call(this);
         this.imageID = "";
-        this.width = 1;
-        this.height = 1;
         this.imageID = id;
         this.image = new Image();
         this.image.src = this.imageID;
