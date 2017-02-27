@@ -19,7 +19,7 @@ var TouchEventService = (function () {
         this.performerList.push(performer);
     };
     TouchEventService.prototype.clearList = function () {
-        this.performerList = [];
+        this.performerList.splice(0, this.performerList.length);
     };
     TouchEventService.prototype.toDo = function () {
         //console.log(this.performerList);

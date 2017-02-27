@@ -1,6 +1,7 @@
 var _this = this;
 window.onload = function () {
     var currentTarget;
+    var startTarget;
     var isMouseDown = false;
     var startPoint = new math.Point(-1, -1);
     var movingPoint = new math.Point(0, 0);
@@ -49,10 +50,12 @@ window.onload = function () {
     container.addEventListener(TouchEventsType.MOUSEMOVE, function () {
         // console.log("container");
     }, _this);
-    list.addEventListener(TouchEventsType.MOUSEDOWN, function () {
-        container.x += (TouchEventService.stageX - movingPoint.x);
-        container.y += (TouchEventService.stageY - movingPoint.y);
-        console.log("list");
+    list.addEventListener(TouchEventsType.MOUSEMOVE, function () {
+        if (currentTarget == startTarget) {
+            container.x += (TouchEventService.stageX - movingPoint.x);
+            container.y += (TouchEventService.stageY - movingPoint.y);
+            console.log("list");
+        }
     }, _this);
     button.addEventListener(TouchEventsType.CLICK, function () {
         alert("OnClick!!!");
@@ -69,6 +72,7 @@ window.onload = function () {
         movingPoint.y = y;
         TouchEventService.currentType = TouchEventsType.MOUSEDOWN;
         currentTarget = stage.hitTest(x, y);
+        startTarget = currentTarget;
         TouchEventService.getInstance().toDo();
         //console.log(stage.globalMatrix);
         //console.log(currentTarget);
@@ -103,7 +107,7 @@ window.onload = function () {
             TouchEventService.stageY = y;
             TouchEventService.currentType = TouchEventsType.MOUSEMOVE;
             //console.log(TouchEventService.currentType);
-            stage.hitTest(x, y);
+            currentTarget = stage.hitTest(x, y);
             TouchEventService.getInstance().toDo();
             movingPoint.x = x;
             movingPoint.y = y;
