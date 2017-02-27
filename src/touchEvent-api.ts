@@ -23,7 +23,7 @@ class TouchEventService{
     }
 
     clearList(){
-        this.performerList.splice(0,this.performerList.length);
+        this.performerList.splice(0,this.performerList.length);//清空列表
     }
 
     toDo(){

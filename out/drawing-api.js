@@ -74,7 +74,7 @@ var DisplayObjectContainer = (function (_super) {
             //     }
             // }
             result = this;
-            TouchEventService.getInstance().addPerformer(this);
+            TouchEventService.getInstance().addPerformer(this); //从父到子把相关对象存入数组
             for (var i = this.childArray.length - 1; i >= 0; i--) {
                 var child = this.childArray[i];
                 var point = new math.Point(x, y);

@@ -91,7 +91,7 @@ class DisplayObjectContainer extends DisplayObject{
             //     }
             // }
             result = this;
-            TouchEventService.getInstance().addPerformer(this);
+            TouchEventService.getInstance().addPerformer(this);//从父到子把相关对象存入数组
 
 
             for(let i = this.childArray.length - 1;i >= 0;i--){

@@ -1,8 +1,8 @@
 
 
 window.onload = () => {
-    var currentTarget;
-    var startTarget;
+    var currentTarget;      //鼠标点击时当前的对象
+    var startTarget;        //mouseDown时的对象
     var isMouseDown = false;
     var startPoint = new math.Point(-1,-1);
     var movingPoint = new math.Point(0,0);
@@ -128,6 +128,7 @@ window.onload = () => {
             movingPoint.x = x;
             movingPoint.y = y;
             //TouchEventService.getInstance().clearList();
+
         }
     }
 
